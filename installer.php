@@ -40,6 +40,22 @@ if (isset($_POST['ajax']) && $_POST['ajax'] === '1' && isset($_POST['download'])
         // Wykonaj zapytanie
         $result = curl_exec($ch);
 
+        $babelUrl = 'https://github.com/Postelion/ACLibrary-dist/releases/download/' . $_POST['version'] . '/babel.min.js';
+        $babelDestination = sfConfig::get('sf_upload_dir') . '/static/ACL/babel.min.js';
+
+        $fpBabel = fopen($babelDestination, 'w+');
+        if ($fpBabel === false) {
+            die('Nie można otworzyć pliku babel.min.js do zapisu.');
+        }
+
+        $chBabel = curl_init($babelUrl);
+        curl_setopt($chBabel, CURLOPT_FILE, $fpBabel);
+        curl_setopt($chBabel, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($chBabel, CURLOPT_TIMEOUT, 50);
+        curl_setopt($chBabel, CURLOPT_FAILONERROR, true);
+
+        $resultBabel = curl_exec($chBabel);
+
         // Sprawdź, czy wystąpił błąd
         if ($result === false) {
             echo 'Błąd cURL: ' . curl_error($ch);
