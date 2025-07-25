@@ -133,7 +133,7 @@
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
     <script>
         // Pobierz i wygeneruj menu z JSON
-        fetch('components-menu.json')
+        fetch('/components-menu.json')
             .then(res => res.json())
             .then(data => {
                 const menuDiv = document.getElementById('sidebar-menu');
