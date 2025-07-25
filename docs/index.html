@@ -157,8 +157,12 @@
                         const btn = document.createElement('button');
                         btn.textContent = item.label;
                         btn.onclick = () => {
-                            if (item.code) {
-                                editor.setValue(item.code); // przenosi kod do Monaco
+                            if (item.name) {
+                                fetch(`https://postelion.github.io/ACLibrary-dist/code_${item.name}.js`)
+                                    .then(res => res.text())
+                                    .then(jsCode => {
+                                        editor.setValue(jsCode);
+                                    });
                             }
                         };
                         menuDiv.appendChild(btn);
