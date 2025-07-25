@@ -1,5 +1,5 @@
 [
     { "label": "Flex", "name": "flex"},
     { "label": "Button", "name": "button"},
-    { "label": "AuraTable", "name": "auraTable"},
+    { "label": "AuraTable", "name": "auraTable"}
 ]
