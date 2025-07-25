@@ -1,0 +1,15 @@
+<div id="component"></div>
+<script type="text/babel">
+  function App() {
+    // @[ACL component init]
+
+    return (
+      <components.Flex gap="10px" flexDirection="column" padding="10px">
+        <div>komponent 1</div>
+        <div>komponent 2</div>
+      </components.Flex>
+    )
+  }
+
+  ACLibrary.addComponent("#component", App);
+</script>
