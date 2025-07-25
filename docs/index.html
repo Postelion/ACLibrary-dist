@@ -158,10 +158,10 @@
                         btn.textContent = item.label;
                         btn.onclick = () => {
                             if (item.name) {
-                                fetch(`https://postelion.github.io/ACLibrary-dist/code_${item.name}.js`)
+                                fetch(`https://postelion.github.io/ACLibrary-dist/code_${item.name}.html`)
                                     .then(res => res.text())
-                                    .then(jsCode => {
-                                        editor.setValue(jsCode);
+                                    .then(code => {
+                                        editor.setValue(code);
                                     });
                             }
                         };
