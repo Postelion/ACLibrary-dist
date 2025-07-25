@@ -25,7 +25,7 @@
 
         /* MENU */
         .sidebar {
-            width: 220px;
+            width: 400px;
             background-color: #23233a;
             padding: 1.2rem 0.7rem;
             display: flex;
@@ -54,6 +54,11 @@
             text-align: left;
             margin-bottom: 0.15rem;
             outline: none;
+        }
+
+        /* Dodaj odstępy między przyciskami menu */
+        #sidebar-menu button {
+            margin: 5px
         }
 
         .sidebar button:hover,
@@ -132,24 +137,6 @@
     <!-- Monaco Loader -->
     <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
     <script>
-        // Pobierz i wygeneruj menu z JSON
-        fetch('/components-menu.json')
-            .then(res => res.json())
-            .then(data => {
-                const menuDiv = document.getElementById('sidebar-menu');
-                menuDiv.innerHTML = '';
-                data.forEach(item => {
-                    const btn = document.createElement('button');
-                    btn.textContent = item.label;
-                    btn.onclick = () => {
-                        if (item.code) {
-                            editor.setValue(item.code);
-                        }
-                    };
-                    menuDiv.appendChild(btn);
-                });
-            });
-
         require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
 
         require(['vs/editor/editor.main'], function () {
@@ -159,6 +146,24 @@
                 fontSize: 14,
                 automaticLayout: true
             });
+
+            // Pobierz i wygeneruj menu z JSON (po utworzeniu edytora)
+            fetch('https://postelion.github.io/ACLibrary-dist/components-menu.json')
+                .then(res => res.json())
+                .then(data => {
+                    const menuDiv = document.getElementById('sidebar-menu');
+                    menuDiv.innerHTML = '';
+                    data.forEach(item => {
+                        const btn = document.createElement('button');
+                        btn.textContent = item.label;
+                        btn.onclick = () => {
+                            if (item.code) {
+                                editor.setValue(item.code); // przenosi kod do Monaco
+                            }
+                        };
+                        menuDiv.appendChild(btn);
+                    });
+                });
 
             function updatePreview() {
                 const code = editor.getValue();
