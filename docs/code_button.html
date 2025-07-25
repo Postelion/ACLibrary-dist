@@ -1,0 +1,12 @@
+<div id="component"></div>
+<script type="text/babel">
+  function App() {
+    // @[ACL component init]
+
+    return (
+      <components.Button colorScheme="blue">Przycisk</components.Button>
+    )
+  }
+
+  ACLibrary.addComponent("#component", App);
+</script>
