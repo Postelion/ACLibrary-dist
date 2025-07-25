@@ -1,10 +1,242 @@
 <!DOCTYPE html>
-<html>
+<html lang="pl">
+
 <head>
-  <title>Moja Strona</title>
+    <meta charset="UTF-8">
+    <title>UI z Monaco</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            background-color: #1e1e2f;
+            color: #f5f5f5;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* MENU */
+        .sidebar {
+            width: 220px;
+            background-color: #23233a;
+            padding: 1.2rem 0.7rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .sidebar h2 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            letter-spacing: 0.5px;
+            color: #00bcd4;
+            border-bottom: 1px solid #39395a;
+            padding-bottom: 0.3rem;
+        }
+
+        .sidebar button {
+            background: #2a2a40;
+            color: #f0f0f0;
+            border: none;
+            padding: 0.6rem 0.9rem;
+            font-size: 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: left;
+            margin-bottom: 0.15rem;
+            outline: none;
+        }
+
+        .sidebar button:hover,
+        .sidebar button:focus {
+            background: #35355a;
+            color: #f0f0f0;
+        }
+
+        .sidebar button.active {
+            background: #00bcd4;
+            color: #23233a;
+            font-weight: 600;
+        }
+
+        /* PRAWA STRONA */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        .preview {
+            flex: 1 1 50%;
+            max-height: 50%;
+            min-height: 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #39395a;
+        }
+
+        .preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background-color: #fff;
+        }
+
+        .editor-section {
+            flex: 1 1 50%;
+            max-height: 50%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #editor-container {
+            flex: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            height: auto;
+            min-height: 0;
+            max-height: none;
+        }
+    </style>
 </head>
+
 <body>
-  <h1>Witaj na mojej stronie!</h1>
-  <p>To działa dzięki GitHub Pages.</p>
+
+    <div class="sidebar">
+        <h2>Komponenty</h2>
+        <div id="sidebar-menu"></div>
+    </div>
+
+    <div class="main">
+        <div class="preview">
+            <iframe id="preview-iframe"></iframe>
+        </div>
+        <div class="editor-section">
+            <div id="editor-container"></div>
+        </div>
+    </div>
+
+    <!-- Monaco Loader -->
+    <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs/loader.js"></script>
+    <script>
+        // Pobierz i wygeneruj menu z JSON
+        fetch('components-menu.json')
+            .then(res => res.json())
+            .then(data => {
+                const menuDiv = document.getElementById('sidebar-menu');
+                menuDiv.innerHTML = '';
+                data.forEach(item => {
+                    const btn = document.createElement('button');
+                    btn.textContent = item.label;
+                    btn.onclick = () => {
+                        if (item.code) {
+                            editor.setValue(item.code);
+                        }
+                    };
+                    menuDiv.appendChild(btn);
+                });
+            });
+
+        require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.45.0/min/vs' } });
+
+        require(['vs/editor/editor.main'], function () {
+            const editor = monaco.editor.create(document.getElementById('editor-container'), {
+                language: 'html',
+                theme: 'vs-dark',
+                fontSize: 14,
+                automaticLayout: true
+            });
+
+            function updatePreview() {
+                const code = editor.getValue();
+
+                // Dodaj skrypt do przechwytywania błędów JS w iframe
+                const errorCatcher = `
+                    <script>
+                        window.onerror = function(message, source, lineno, colno, error) {
+                            window.parent.postMessage({
+                                type: 'iframe-error',
+                                message,
+                                source,
+                                lineno,
+                                colno,
+                                error: error ? error.stack : null
+                            }, '*');
+                        };
+                    <\/script>
+                `;
+
+                // Przygotuj pełny HTML z kodem użytkownika w body
+                const html = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="UTF-8">
+                        <style>
+                            body { margin: 20px; font-family: Arial, sans-serif; }
+                        </style>
+                    </head>
+                    <body>
+                        <div id="aura-custom-lib"></div>
+                        <script src="https://github.com/Postelion/ACLibrary-dist/releases/download/v0.1.2/aura-custom-lib.js">
+                        <\/script>
+                        ${code}
+                        ${errorCatcher}
+                    </body>
+                    </html>
+                `;
+
+                // Tworzymy blob URL z kodem HTML
+                const blob = new Blob([html], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+
+                // Usuwamy stary iframe
+                const previewDiv = document.querySelector('.preview');
+                const oldIframe = document.getElementById('preview-iframe');
+                if (oldIframe) {
+                    if (oldIframe.src && oldIframe.src.startsWith('blob:')) {
+                        URL.revokeObjectURL(oldIframe.src);
+                    }
+                    previewDiv.removeChild(oldIframe);
+                }
+
+                // Dodajemy nowy iframe
+                const newIframe = document.createElement('iframe');
+                newIframe.id = 'preview-iframe';
+                newIframe.style.width = '100%';
+                newIframe.style.height = '100%';
+                newIframe.style.border = 'none';
+                newIframe.style.backgroundColor = '#fff';
+                newIframe.src = url;
+                previewDiv.appendChild(newIframe);
+            }
+
+            // Odbiór błędów z iframe
+            window.addEventListener('message', function (event) {
+                if (event.data && event.data.type === 'iframe-error') {
+                    // Wyświetl błąd np. w konsoli lub w UI
+                    console.error('Błąd w iframe:', event.data);
+                    // Możesz dodać wyświetlanie błędu w UI, np. w osobnym div
+                }
+            });
+
+            editor.onDidChangeModelContent(updatePreview);
+            updatePreview();
+        });
+    </script>
 </body>
+
 </html>
