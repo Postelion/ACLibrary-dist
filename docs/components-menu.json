@@ -1,0 +1,12 @@
+[
+    { "label": "Text", "code": "<div>Przykładowy tekst</div>" },
+    { "label": "Button", "code": "<button>Kliknij mnie</button>" },
+    { "label": "Input", "code": "<input type='text' placeholder='Wpisz tekst'>" },
+    { "label": "Checkbox", "code": "<input type='checkbox'> Checkbox" },
+    { "label": "Radio", "code": "<input type='radio' name='r'> Radio" },
+    { "label": "Textarea", "code": "<textarea>Textarea</textarea>" },
+    { "label": "Select", "code": "<select><option>Opcja 1</option><option>Opcja 2</option></select>" },
+    { "label": "Image", "code": "<img src='https://placehold.co/100x100' alt='Obrazek'>" },
+    { "label": "Card", "code": "<div style='border:1px solid #ccc;padding:1em;border-radius:8px;'>Card</div>" },
+    { "label": "Modal", "code": "<div style='background:#fff;padding:2em;border-radius:8px;'>Modal</div>" }
+]
